@@ -26,7 +26,6 @@ public class ImplCliente implements Runnable {
 			
 			while(conexao) {
 				mensagem = "teste";
-				Node.logMensagensEnviadas.add(mensagem);
 				saida.println(mensagem);
 			}
 			saida.close();

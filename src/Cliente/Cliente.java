@@ -1,9 +1,15 @@
 package Cliente;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Scanner;
 
+import Mensagem.Mensagem;
 import Node.Node;
 
 public class Cliente implements Runnable{
@@ -12,18 +18,20 @@ public class Cliente implements Runnable{
 	public String ip;
 	public int porta;
 	public Thread t;
+	private boolean conexao = true;
+	private ObjectInputStream entrada;
+	private ObjectOutputStream saida;
 	public Cliente (String ip, int porta) {
 		this.ip = ip;
 		this.porta = porta;
-		this.run();
 	}
 	public void run() {
 		try {
 			Thread.sleep(20000);
 			socket = new Socket(ip,porta);
 			inet = socket.getInetAddress();
-			System.out.println("conexao feita!");
-			
+			System.out.println("conexao feita com a porta" + porta);
+			saida = new ObjectOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -32,10 +40,16 @@ public class Cliente implements Runnable{
 		}
 	}
 	
-	public void mandarMensagem() {
-		ImplCliente cliente = new ImplCliente(socket);
-		t = new Thread(cliente);
-		t.start();
+	public void mandarMensagem(Mensagem mensagem) {
+		try {
+			saida.writeObject(mensagem);
+			Node.logMensagensEnviadas.add(mensagem);
+			saida.flush();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		
 	}
 	
 	

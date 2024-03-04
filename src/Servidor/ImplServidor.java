@@ -28,7 +28,6 @@ public class ImplServidor implements Runnable{
 			scanner = new Scanner(socketCliente.getInputStream());
 			while(conexao) {
 				mensagem = scanner.nextLine();
-				Node.logMensagensRecebidas.add(mensagem);
 				System.out.println("mensagem recebida:" + mensagem);
 				conexao =false;
 			}
