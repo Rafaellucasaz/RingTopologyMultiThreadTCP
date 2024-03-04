@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import Mensagem.Mensagem;
@@ -18,6 +19,7 @@ public class Cliente implements Runnable{
 	public String ip;
 	public int porta;
 	public Thread t;
+	public static ArrayList<Mensagem> mensagensPraRepassar = new ArrayList<Mensagem>();
 	private boolean conexao = true;
 	private ObjectInputStream entrada;
 	private ObjectOutputStream saida;
@@ -32,6 +34,13 @@ public class Cliente implements Runnable{
 			inet = socket.getInetAddress();
 			System.out.println("conexao feita com a porta" + porta);
 			saida = new ObjectOutputStream(socket.getOutputStream());
+			while(true) {
+				if(mensagensPraRepassar.size() >0) {
+					this.repassarMensagem(mensagensPraRepassar.get(mensagensPraRepassar.size()-1));
+					mensagensPraRepassar.remove(mensagensPraRepassar.size()-1);
+				}
+				Thread.sleep(5000);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -46,11 +55,20 @@ public class Cliente implements Runnable{
 			Node.logMensagensEnviadas.add(mensagem);
 			saida.flush();
 		} catch (IOException e) {
-			
+			System.out.println("nao foi possivel enviar a mensagem");
 			e.printStackTrace();
 		}
 		
 	}
 	
+	public void repassarMensagem(Mensagem mensagem) {
+		try {
+			saida.writeObject(mensagem);
+			saida.flush();
+		} catch (IOException e) {
+			System.out.println("nao foi possivel repassar a mensagem");
+			e.printStackTrace();
+		}
+	}
 	
 }

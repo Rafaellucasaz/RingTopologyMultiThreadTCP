@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+import Cliente.Cliente;
 import Mensagem.Mensagem;
 import Node.Node;
 
@@ -44,12 +45,24 @@ public class Servidor implements Runnable{
 				System.out.println("conexao com o cliente " + cliente.getInetAddress().getHostAddress() + "/" + cliente.getInetAddress().getHostName());
 				while (conexao) {
 					mensagem = (Mensagem) entrada.readObject();
-					Node.logMensagensRecebidas.add(mensagem);
-					System.out.println("mensagem recebida:" + mensagem.getConteudo());
+					if(mensagem.getDestino() == this.port) {
+						Node.logMensagensRecebidas.add(mensagem);
+						System.out.println("mensagem recebida:" + mensagem.getConteudo());
+					}
+					else if (mensagem.getDestino() == 100000){
+						Node.logMensagensRecebidas.add(mensagem);
+						System.out.println("mensagem recebida:" + mensagem.getConteudo());
+						Cliente.mensagensPraRepassar.add(mensagem);
+					}
+					else {
+						Cliente.mensagensPraRepassar.add(mensagem);
+					}
+					
 				}
-				//ImplServidor teste = new ImplServidor(cliente);
-				//Thread t = new Thread(teste);
-				//t.start();
+				cliente.close();
+				socketServidor.close();
+				entrada.close();
+				saida.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

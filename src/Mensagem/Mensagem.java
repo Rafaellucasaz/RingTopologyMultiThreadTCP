@@ -14,19 +14,19 @@ public class Mensagem implements Serializable {
 		setConteudo(conteudo);
 	}
 	public int getRemetente() {
-		return remetente;
+		return this.remetente;
 	}
 	public void setRemetente(int remetente) {
 		this.remetente = remetente;
 	}
 	public int getDestino() {
-		return destino;
+		return this.destino;
 	}
 	public void setDestino(int destino) {
 		this.destino = destino;
 	}
 	public String getConteudo() {
-		return conteudo;
+		return this.conteudo;
 	}
 	public void setConteudo(String conteudo) {
 		this.conteudo = conteudo;
