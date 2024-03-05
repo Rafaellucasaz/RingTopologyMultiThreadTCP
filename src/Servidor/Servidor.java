@@ -3,67 +3,112 @@ package Servidor;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 import Cliente.Cliente;
 import Mensagem.Mensagem;
 import Node.Node;
 
 public class Servidor implements Runnable{
-	public static int cont =0;
-	public ServerSocket socketServidor;
+	private ServerSocket socketServidor;
 	public boolean conexao = true;
-	public Socket cliente;
-	public int port;
-	private Scanner scanner = null;
+	private Socket cliente;
+	private int port;
 	private ObjectOutputStream saida;
 	private ObjectInputStream entrada;
 	private Mensagem mensagem;
 	
-	public Servidor(int port) {
+	public ServerSocket getSocketServidor() {
+		return socketServidor;
+	}
+
+	public void setSocketServidor(ServerSocket socketServidor) {
+		this.socketServidor = socketServidor;
+	}
+
+	public Socket getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Socket cliente) {
+		this.cliente = cliente;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
 		this.port = port;
-		cont++;
+	}
+
+	public ObjectOutputStream getSaida() {
+		return saida;
+	}
+
+	public void setSaida(ObjectOutputStream saida) {
+		this.saida = saida;
+	}
+
+	public ObjectInputStream getEntrada() {
+		return entrada;
+	}
+
+	public void setEntrada(ObjectInputStream entrada) {
+		this.entrada = entrada;
+	}
+
+	public Mensagem getMensagem() {
+		return mensagem;
+	}
+
+	public void setMensagem(Mensagem mensagem) {
+		this.mensagem = mensagem;
+	}
+
+	
+	
+	public Servidor(int port) {
+		setPort(port);
 	}
 
 	@Override
 	public void run() {
 		try {
-			socketServidor = new ServerSocket(port);
-			System.out.println("servidor estabelecido! Informações abaixo");
-			System.out.println("Porta:" + socketServidor.getLocalPort());
-			System.out.println("Endereço ip: " + InetAddress.getLocalHost().getHostAddress());
-			System.out.println("Nome do host:" + InetAddress.getLocalHost().getHostName());
+			setSocketServidor(new ServerSocket(port));
+			System.out.println("servidor estabelecido na porta: " + getSocketServidor().getLocalPort());
 			System.out.println("Aguardando conexao");
+			setCliente(socketServidor.accept());
 			
-			while(true) {
-				cliente = socketServidor.accept();
-				entrada = new ObjectInputStream(cliente.getInputStream());
-				System.out.println("conexao com o cliente " + cliente.getInetAddress().getHostAddress() + "/" + cliente.getInetAddress().getHostName());
-				while (conexao) {
-					mensagem = (Mensagem) entrada.readObject();
-					if(mensagem.getDestino() == this.port) {
-						Node.logMensagensRecebidas.add(mensagem);
-						System.out.println("mensagem recebida:" + mensagem.getConteudo());
-					}
-					else if (mensagem.getDestino() == 100000){
-						Node.logMensagensRecebidas.add(mensagem);
-						System.out.println("mensagem recebida:" + mensagem.getConteudo());
-						Cliente.mensagensPraRepassar.add(mensagem);
-					}
-					else {
-						Cliente.mensagensPraRepassar.add(mensagem);
+			setEntrada(new ObjectInputStream(getCliente().getInputStream()));
+			
+			System.out.println("Servidor: conexao com o cliente estabelecida") ;
+			while (conexao) {
+				setMensagem((Mensagem) entrada.readObject());
+				if(getMensagem().getDestino() == this.port) {
+					Node.logMensagensRecebidas.add(mensagem);
+					System.out.println("mensagem recebida:" + getMensagem().getConteudo());
+				}
+				else if (getMensagem().getDestino() == 100000){
+					Node.logMensagensRecebidas.add(getMensagem());
+					System.out.println("mensagem recebida:" + getMensagem().getConteudo());
+					if(getMensagem().ttl <3) {
+						Cliente.mensagensParaRepassar.add(getMensagem());
+						getMensagem().ttl++;
 					}
 					
 				}
-				cliente.close();
-				socketServidor.close();
-				entrada.close();
-				saida.close();
+				else {
+					Cliente.mensagensParaRepassar.add(getMensagem());
+				}
 			}
+			getCliente().close();
+			getSocketServidor().close();
+			getEntrada().close();
+			getSaida().close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

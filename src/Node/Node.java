@@ -6,11 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import Cliente.Cliente;
-import Cliente.ImplCliente;
 import Mensagem.Mensagem;
-import Servidor.ImplServidor;
 import Servidor.Servidor;
 
 public class Node {
@@ -46,51 +43,54 @@ public class Node {
 			System.out.println("4-fechar conexao");
 			aux = scanner.nextInt();
 			scanner.nextLine();
-			switch (aux) {
-			
-			case 1: 
-				Mensagem mensagem = new Mensagem();
-				System.out.println("Broadcast ou Unicast ?:");
-				String tipoMensagem = scanner.nextLine();
-				if(tipoMensagem.equalsIgnoreCase("broadcast")) {
-					mensagem.setDestino(100000);
-				}
-				else if(tipoMensagem.equalsIgnoreCase("unicast")) {
-					System.out.println("digite a porta de destino:(5465,5466,5467,5468)");
-					mensagem.setDestino(scanner.nextInt());
-					scanner.nextLine();
-				}
-				else {
-					System.out.println("entrada invalida");
-					break;
-				}
-				System.out.println("digite a mensagem:");
-				mensagem.setConteudo(scanner.nextLine());
-				mensagem.setRemetente(portaServidor);
-				cliente1.mandarMensagem(mensagem);
-				break;
-			case 2:
-				for(int i =0; i < logMensagensRecebidas.size();i++) {
-					System.out.println("mensagem " + (i+1) + " : " + logMensagensRecebidas.get(i).getConteudo() );
-				}
-				break;
-			case 3:
-				for(int i = 0; i < logMensagensEnviadas.size();i++) {
-					System.out.println("mensagem " + (i+1) + " : " + logMensagensEnviadas.get(i).getConteudo());
-				}
-				break;
-			case 4:
-				servidorInstance.conexao=false;
-				System.out.println("tchau");
-				break;
-			default:
+			try {
+				switch (aux) {
 				
+				case 1: 
+					Mensagem mensagem = new Mensagem();
+					System.out.println("Broadcast ou Unicast ?:");
+					String tipoMensagem = scanner.nextLine();
+					if(tipoMensagem.equalsIgnoreCase("broadcast")) {
+						mensagem.setDestino(100000);
+					}
+					else if(tipoMensagem.equalsIgnoreCase("unicast")) {
+						System.out.println("digite a porta de destino:(5465,5466,5467,5468)");
+						mensagem.setDestino(scanner.nextInt());
+						scanner.nextLine();
+					}
+					else {
+						System.out.println("entrada invalida");
+						break;
+					}
+					System.out.println("digite a mensagem:");
+					mensagem.setConteudo(scanner.nextLine());
+					mensagem.setRemetente(portaServidor);
+					cliente1.mandarMensagem(mensagem);
+					break;
+				case 2:
+					for(int i =0; i < logMensagensRecebidas.size();i++) {
+						System.out.println("mensagem " + (i+1) + " : " + logMensagensRecebidas.get(i).getConteudo() );
+					}
+					break;
+				case 3:
+					for(int i = 0; i < logMensagensEnviadas.size();i++) {
+						System.out.println("mensagem " + (i+1) + " : " + logMensagensEnviadas.get(i).getConteudo());
+					}
+					break;
+				case 4:
+					servidorInstance.conexao = false;
+					cliente1.conexao = false;
+					
+					break;
+				default:
+					
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			
 		}
 	}
 	
-	public void repassarMensagem(Mensagem mensagem) {
-		
-	}
 
 }
